@@ -1,0 +1,7 @@
+{% extends 'changelog_page.html' %}
+{% load changelog_tags %}
+{% block cl-page-body %}
+    {% version 0.1.0 %}
+        <p>{% added %} First alpha version of Console Calculator</p>
+    {% endversion %}
+{% endblock %}

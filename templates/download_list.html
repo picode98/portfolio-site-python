@@ -1,0 +1,17 @@
+<div class="download-list">
+    {% for release in releaseInfo.releases %}
+            {% if forloop.first %}
+                <h3>Downloads for the latest version ({{ release.version }}):</h3>
+            {% else %}
+                <h3>Version {{ release.version }}:</h3>
+            {% endif %}
+            <a href="{{ changelogURL }}#{{ release.version }}">Changes in this version</a>
+        {% for this_file in release.files %}
+            <p><a href="{% url 'download_file' this_file.url_rel_downloads_root %}">
+                {{ this_file.displayName }} ({{ this_file.fileSize|filesizeformat }}) - {{ this_file.releaseDate|date:'d M Y' }}
+            </a></p>
+            <p>SHA1: {{ this_file.sha1 }}</p>
+            <p>SHA256: {{ this_file.sha256 }}</p>
+        {% endfor %}
+    {% endfor %}
+</div>

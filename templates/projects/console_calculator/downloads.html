@@ -1,0 +1,4 @@
+{% extends 'layout.html' %}
+{% block page-body %}
+    {% include 'download_list.html' with releaseInfo=releaseInfo changelogURL=changelogURL %}
+{% endblock %}

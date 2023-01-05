@@ -1,0 +1,4 @@
+Django>=4.1,<4.2
+aiosmtpd
+google-cloud-recaptcha-enterprise
+beautifulsoup4

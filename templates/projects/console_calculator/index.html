@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+{% block page-head %}
+    <title>Console Calculator</title>
+    <meta name="SHORT_DESC" content="Console Calculator is a console-based calculator with advanced features.">
+{% endblock %}
+{% block page-body %}
+<h1>Console Calculator version {{ latestVersion.version }}</h1>
+<p>Want an efficient calculator that can take on advanced calculations?</p>
+<h2>Features</h2>
+<ul>
+    <li>Many built-in functions, including:
+        <ul>
+            <li>Trigonometric functions</li>
+            <li>Logarithmic functions</li>
+            <li>Psuedo-random-number generation functions</li>
+            <li>A single-variable bisection-method solver function</li>
+            <li>Numerical integral and derivative functions</li>
+        </ul>
+    </li>
+    <li>Table generation</li>
+    <li>Numeric list handling</li>
+    <li>Ability to define custom variables and functions and save them</li>
+    <li>Output options: precision, notation, decimal-fraction</li>
+    <li>Command line option to generate CSV output</li>
+</ul>
+<h2>Supported Platforms</h2>
+<p>Currently, only Windows x86 (32-bit) builds are supported; these should run in most Windows environments since Windows 7 (compatibility testing is still underway).</p>
+<h2>Setup Instructions</h2>
+<p>For ZIP folders containing builds of this program, run "calculator.exe".</p>
+<p><b>Important:</b> If you receive errors regarding the following missing DLLs:</p>
+<ul>
+    <li>MSVCP140.dll or VCRUNTIME140.dll: Install the <a href="https://aka.ms/vs/15/release/VC_redist.x86.exe"> Microsoft Visual C++ 2015/2017 Redistributable Package</a>.</li>
+    <li>MSVCP100.dll or MSVCR100.dll: Install the <a href="https://www.microsoft.com/en-us/download/details.aspx?id=5555">Microsoft Visual C++ 2010 Redistributable Package</a>.</li>
+</ul>
+<h2>Licensing</h2>
+<p>This program is licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">version 3 of the GNU GPL</a>.</p>
+<h2>Links</h2>
+<p><a href="{% url 'console_calc_downloads' %}">Downloads</a></p>
+<p><a href="{% url 'console_calc_changelog' %}">Changelog</a></p>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block page-head %}
+    <link href="{% static 'css/changelog.css' %}" type="text/css" rel="stylesheet">
+    {% block cl-page-head %}{% endblock %}
+{% endblock %}
+{% block page-body %}
+    {% block cl-page-body %}{% endblock %}
+{% endblock %}

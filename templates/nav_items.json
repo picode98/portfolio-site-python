@@ -1,0 +1,51 @@
+{
+  "subList": [
+    {
+      "dispName": "saamankhali.net",
+      "url": "/"
+    },
+    {
+      "dispName": "About",
+      "url": "/about/",
+      "subList": [
+        {
+          "dispName": "About me",
+          "url": "/about/about_me"
+        },
+        {
+          "dispName": "About this site",
+          "url": "/about/about_website"
+        },
+        {
+          "dispName": "Contact me",
+          "url": "/about/contact_me"
+        }
+      ]
+    },
+    {
+      "dispName": "Projects",
+      "url": "/projects/",
+      "subList": [
+        {
+          "dispName": "Console Calculator",
+          "url": "/projects/console_calculator/",
+          "releaseDir": "pages/projects/console_calculator/downloads"
+        }
+      ]
+    },
+    {
+      "dispName": "Research",
+      "url": "/research/",
+      "subList": [
+        {
+          "dispName": "Penn Snake Behrend",
+          "url": "/research/penn_snake_behrend"
+        },
+        {
+          "dispName": "Manufacturing Simulation",
+          "url": "/research/manufacturing_sim"
+        }
+      ]
+    }
+  ]
+}

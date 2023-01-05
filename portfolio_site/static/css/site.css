@@ -1,0 +1,58 @@
+img
+{
+    max-width: 100%;
+}
+
+.content-container,.footer-items
+{
+    background-color: #dddddd;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.content-container p:first-child,h1:first-child
+{
+    margin-top: 0;
+}
+
+.content-container p:last-child,h1:last-child
+{
+    margin-bottom: 0;
+}
+
+.link-list .link-list-item
+{
+    margin-bottom: 5px;
+}
+
+.link-list .link-list-item:last-child
+{
+    margin-bottom: 0;
+}
+
+.footer-container
+{
+    margin-top: 5px;
+    text-align: center;
+}
+
+.footer-items
+{
+    display: inline-block;
+}
+
+.footer-items a
+{
+    margin-right: 5px;
+}
+
+.footer-items a:last-child
+{
+    margin-right: 0;
+}
+
+.footer-items img
+{
+    height: 32px;
+    vertical-align: middle;
+}

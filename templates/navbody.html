@@ -1,0 +1,13 @@
+<div class="breadcrumbs-container">
+    {% for name, url in breadcrumbAncestors %}
+        {% if not forloop.first %}
+            &raquo;
+        {% endif %}
+        <a href="{{ url }}">{{ name }}</a>
+    {% endfor %}
+</div>
+<div class="nav-menu-container" style="z-index: 999;">
+    <ul class="{{ 'sm '|add:smartMenusThemeName }}">
+        {% include 'navtree.html' with listItems=navItems %}
+    </ul>
+</div>

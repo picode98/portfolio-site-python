@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block page-head %}
+    {% block dir-page-head %}{% endblock %}
+{% endblock %}
+{% block page-body %}
+    {{ listDesc|safe }}
+    <ul class="link-list">
+        {% for thisView in viewList %}
+            <li class="link-list-item">
+                <a href="{{ thisView.url }}">{{ thisView.displayName }}</a>
+                {% if thisView.descMarkup %}
+                    - <span>{{ thisView.descMarkup|safe }}</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% for thisItem in listItems %}
+    <li>
+        <a class="navitem" href="{{ thisItem.url }}">
+            {{ thisItem.dispName }}
+        </a>
+        {% if thisItem.subList %}
+            <ul>
+                {% include 'navtree.html' with listItems=thisItem.subList %}
+            </ul>
+        {% endif %}
+    </li>
+{% endfor %}

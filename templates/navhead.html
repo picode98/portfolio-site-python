@@ -1,0 +1,53 @@
+{% load static %}
+{% with 5 as imageVerticalPadding %}
+{% with 57 as baseMenuHeight %}
+<!-- SmartMenus jQuery plugin -->
+<script src="{% static 'smartmenus/jquery.smartmenus.js' %}" type="text/javascript"></script>
+
+<link href="{% static 'css/nav.css' %}" type="text/css" rel="stylesheet">
+
+<style>
+    @media (min-width: 768px) {
+        div.nav-container
+        {
+            margin-top: {{ baseMenuHeight|add:8 }}px !important;
+        }
+    }
+</style>
+
+<style id="dynamic-content-container-margin">
+    @media (min-width: 768px) {
+        div.nav-container
+        {
+            margin-top: {{ baseMenuHeight|add:8 }}px !important;
+        }
+
+        :target:before {
+            content: "";
+            display: block;
+            height: {{ baseMenuHeight }}px; /* fixed header height*/
+            margin: -{{ baseMenuHeight }}px 0 0; /* negative fixed header height */
+        }
+    }
+    .navbar-image
+    {
+        max-height: {{ baseMenuHeight }}px;
+    }
+</style>
+
+<!-- SmartMenus core CSS (required) -->
+<link href="{% static 'smartmenus/css/sm-core-css.css' %}" rel='stylesheet' type='text/css' />
+
+<link href="{% static 'smartmenus/css/'|add:smartMenusThemeName|add:'/'|add:smartMenusThemeName|add:'.css' %}" rel="stylesheet" type="text/css">
+
+<!-- imagesLoaded jQuery plugin -->
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.js"></script>
+
+<script src="{% static 'js/nav.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function() {
+        setupNavMenu({{ imageVerticalPadding }});
+    });
+</script>
+{% endwith %}
+{% endwith %}

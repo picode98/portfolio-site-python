@@ -1,0 +1,107 @@
+{% extends 'layout.html' %}
+{% block page-head %}
+    <script src="https://www.google.com/recaptcha/enterprise.js?render={{ recaptcha_site_key }}"></script>
+    <style>
+        .highlight-container
+        {
+            padding: 5px;
+            border-radius: 5px;
+            border-width: 1px;
+            border-style: solid;
+            margin-bottom: 5px;
+        }
+
+        .highlight-container.success-container
+        {
+            background-color: #aaffaa;
+            border-color: #00ff00;
+        }
+
+        .highlight-container.error-container
+        {
+            background-color: #ffaaaa;
+            border-color: #ff0000;
+        }
+
+        form span
+        {
+            padding-right: 5px;
+        }
+
+        textarea
+        {
+            display: block;
+        }
+    </style>
+    <script type="text/javascript">
+        let formSubmitting = false;
+
+        function onValidReCAPTCHA(token)
+        {
+            let form = $('#message-form')[0];
+            if(form.reportValidity())
+            {
+                formSubmitting = true;
+                form.submit();
+            }
+        }
+
+        $(function() {
+            $(window).on('beforeunload', function(eventData) {
+                if(!formSubmitting)
+                {
+                    let formEmpty = true;
+
+                    $('#message-form :input[type!="submit"][type!="hidden"]').not('button').each(function() {
+                        if($(this).val().length > 0)
+                        {
+                            console.log('The following element is not empty:', this);
+                            formEmpty = false;
+                            return false;
+                        }
+                    });
+
+                    if(formEmpty)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        return 'Unsaved form input will be lost.';
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            });
+        });
+    </script>
+{% endblock %}
+{% block page-body %}
+    <h1>Contact Me</h1>
+    <form id="message-form" action="" method="POST">
+        {% if form_posted %}
+            {% if not contact_form.errors %}
+                <div class="highlight-container success-container">
+                    <p>Your message was sent successfully. Your input appears below for your records:</p>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {% csrf_token %}
+        {% for field in contact_form %}
+            <p>
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="highlight-container error-container">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            </p>
+        {% endfor %}
+        <button class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}" data-callback='onValidReCAPTCHA'
+                data-action='{{ contact_form.recaptcha_action_name }}' value="Send Message">Send Message</button>
+    </form>
+{% endblock %}
