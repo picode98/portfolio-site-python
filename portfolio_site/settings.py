@@ -19,9 +19,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-dad(((i!dh1brk4$)(oa=z14k6o(%=1*23i4p*e&!(1187@=0%'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -130,10 +127,6 @@ DOWNLOADS_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-RECAPTCHA_SITE_KEY = '6Ld7KUwgAAAAADZiR2-p39S2v11PcPlGSiEJ_KS2'
-RECAPTCHA_GCLOUD_PROJECT = 'projects/saamankhali-net'
-RECAPTCHA_GCLOUD_CREDENTIALS = BASE_DIR / 'saamankhali-net-gcloud-key.json'
 
 CONTACT_FORM_FROM_ADDRESS = 'contact-form@localhost'
 CONTACT_FORM_TO_ADDRESS = 'contact-me-recipient@localhost'
