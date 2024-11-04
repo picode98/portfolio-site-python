@@ -111,12 +111,18 @@ class ResearchIndexView(LinkListView):
 
 research_index = ResearchIndexView.as_view()
 
+class TeamCakeView(SiteTemplateView):
+    template_name = 'projects/team_cake.html'
+    display_name = 'Ingenuity: Team Cake'
+    desc_markup = 'A project to create a giant birthday cake with Ingenuity Cleveland'
+
+team_cake_view = TeamCakeView.as_view()
 
 class ProjectIndexView(LinkListView):
     display_name = 'Projects'
     desc_markup = 'Software projects that I\'m currently developing or have developed'
     list_desc_markup = 'The following are projects that I am working on or have worked on:'
-    list_views = [console_calc_desc]
+    list_views = [console_calc_desc, team_cake_view]
 
 
 project_index = ProjectIndexView.as_view()

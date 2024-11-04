@@ -29,6 +29,15 @@
             margin: -{{ baseMenuHeight }}px 0 0; /* negative fixed header height */
         }
     }
+
+    @media print
+    {
+        div.nav-container
+        {
+            display: none;
+        }
+    }
+    
     .navbar-image
     {
         max-height: {{ baseMenuHeight }}px;

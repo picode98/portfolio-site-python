@@ -31,6 +31,7 @@ urlpatterns = [
     path('projects/console_calculator/', site_pages.console_calc_desc, name='console_calc_index'),
     path('projects/console_calculator/changelog', site_pages.console_calc_changelog, name='console_calc_changelog'),
     path('projects/console_calculator/downloads', site_pages.console_calc_downloads, name='console_calc_downloads'),
+    path('projects/team_cake', site_pages.team_cake_view, name='team_cake'),
     path('download/<path:download_path>', site_pages.download_view, name='download_file'),
     path('research/', site_pages.research_index, name='research_index'),
     path('research/penn_snake_behrend', site_pages.penn_snake_behrend, name='penn_snake_behrend'),

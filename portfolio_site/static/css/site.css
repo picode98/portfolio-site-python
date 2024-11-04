@@ -1,3 +1,8 @@
+body
+{
+    font-size: 14pt;
+}
+
 img
 {
     max-width: 100%;
@@ -55,4 +60,51 @@ img
 {
     height: 32px;
     vertical-align: middle;
+}
+
+.web-images
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image-container
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.image-container > .image-spacer
+{
+    width: 10px;
+}
+
+.image-caption
+{
+    color: #424242;
+    font-style: italic;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.code-snippet, .code-block
+{
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.code-block
+{
+    overflow-x: auto;
+}
+
+.code-keyword
+{
+    color: blue;
+}
+
+.code-comment
+{
+    color: green;
 }

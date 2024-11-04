@@ -1,0 +1,283 @@
+{% extends 'layout.html' %}
+{% load web_images %}
+{% load code_blocks %}
+{% load footnotes %}
+{% block page-body %}
+    <h1>Ingenuity: Team Cake</h1>
+
+    <b>Content Warning: The following page contains math and engineering content for nerdy audiences.
+        Reader discretion is advised.
+    </b>
+
+    <p>Since moving to Cleveland, I like to think that I fell in with the right crowd, or at least an
+        interesting one. My involvement in this started with a chance meeting in early January 2024 at the
+        <a href="http://alpha.makersalliance.org/">Makers' Alliance</a>, a partner of
+        <a href="https://www.ingenuitycleveland.org/">Ingenuity Cleveland</a>.
+        Some of the regular members kept discussing this <a href="https://www.britewinter.com">"Brite Winter" thing</a>, and
+        when I asked what it was, they said "Come on Thursday!", and so I did.
+    </p>
+    <h2>This cake is no lie</h2>
+    <p>Of the projects selected for the festival, I signed on with one headed by the multitalented Ross
+        Bochnek (of Splendid Dimensions) 0which aimed to construct a supersized wooden birthday cake with 15 candles to celebrate Brite Winter's
+        15th year. The two remaining "slices" of cake
+        {% footnote 'The others having been eaten by local giants with a taste for lumber. We never saw them again, fortunately.' %}
+        would be about 6 feet high, with the candles towering
+        several additional feet over festivalgoing crowds, and the candles were to be topped with eight-sided blinking LED
+        "flames", which I was to write firmware for. Additional lights were mounted in the "frosting" strips between the
+        layers, which were setup and programmed by Robert Wadsworth.
+    </p>
+    {% web_image '/static/assets/team_cake/ross_steampunk_hat.jpg' caption='Ross, seen here performing a difficult rite of cake magic, wears many hats, including this custom steampunk one.' %}
+    <!-- <img src="/static/assets/team_cake/ross_steampunk_hat.jpg"><p class="image-caption">Ross wears many hats, including this custom steampunk one.</p> -->
+    <p>Early on, we decided that each "flame" would have its own microcontroller hidden in the candle
+        stem. This was done both to reduce the signal wiring complexity and to create a more modular and
+        reusable design (indeed, Ross was later able to use an individual candle as a torch for a parade).
+        Ross designed a microcontroller carrier which integrated the 12v &RightArrow; 3.3v buck regulator and
+        routed the wires to appropriate pins; we took to calling these "brain boards". The controllers themselves
+        were <a href="https://www.wemos.cc/en/latest/s2/s2_mini.html">WEMOS S2 minis</a>, which are smaller and
+        cheaper than full-fat ESP32 dev boards, but have most of the same functionality.
+    </p>
+    {% web_image '/static/assets/team_cake/brain_board_side_view' '/static/assets/team_cake/brain_board_end_view' caption='A "brain board" mounted in a 3D-printed base' %}
+    <p>The weeks in the run-up to Brite Winter were spent cutting out, painting, shellaccing, and folding the
+        cardboard octahedra and their LED diffuser housings (aka white plastic cups). They were then hot-glued
+        into 3D-printed bases that slid into the candle tubes, which were graciously designed by Ed Morra:
+    </p>
+    {% web_image '/static/assets/team_cake/brain-board-holder-all-parts.webp:nopreview' '/static/assets/team_cake/brain-board-holder.webp:nopreview' '/static/assets/team_cake/candle_bases_printed.jpg' %}
+
+    <h2>Time to shine</h2>
+    <p>February 24 was a clear, cold Saturday in the Flats as the initial set of bands took their stages.
+        This included the Cleveland School of Rock
+        {% footnote 'Yes, like the Jack Black movie. I definitely wish I would have got to do this in high school.' %}
+        on the outdoor Cleveland Scene Stage as well as
+        <a href="https://thebakersbasement.com">The Baker's Basement</a> and their
+        <a href="https://thebakersbasement.com/track/3205999/wild-wild-sheep">Wild Wild Sheep</a> in the Duck Art Tent.</p>
+    {% web_image '/static/assets/team_cake/brite_winter_daytime.jpg' caption='The beginning of the Brite Winter celebration. It\'s a lot colder than it looks.' %}
+
+    <p>Initially, I was worried by the fact that the LEDs weren't visible in the bright sunlight, but as dusk fell, they came into
+        view, and I found myself fairly pleased with the result. The lights stood out against the night sky, forming a landmark
+        that could be seen from across the festival grounds.
+    </p>
+    {% web_image '/static/assets/team_cake/brite_cake_nighttime.jpg' caption='Thanks again to Nadia Hamel for taking this picture, and for insisting we go back out and take pictures by the cake in the first place.' %}
+
+    <h2>Part deux: Bal Ingenieux</h2>
+    <p>Ross and I had planned from the beginning to add some kind of interactive element to the candles,
+        a task made more difficult by the candles' placement out of festivalgoers' reach. We decided on an
+        initial design based on having users select color palettes for the candles.
+    </p>
+
+    <p>This involved constructing an ESP32-based web server which, while far from an unheard-of task, was
+        made more complicated by the need to also serve non-trivial webpage assets, including jQuery and
+        the jQuery Spectrum color picker. This involved a bit of finangling, and I ended up storing them
+        as strings in flash memory, and making server-side "templates" with {% cs 'snprintf' %}:
+    </p>
+
+{% code_block C++ %}
+const char INDEX_HTML_TEMPLATE[] PROGMEM = R"INDEX_HTML_EOF(
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Candle Controller</title>
+        ...
+        <script type="text/javascript">
+            $(() => {
+                const numCandles = %d;
+{# </script> #}
+...
+</html>
+...
+)INDEX_HTML_EOF";
+
+void index_html_render(WebServer& server, size_t numCandles)
+{
+    char* responseBuf = new char[sizeof(INDEX_HTML_TEMPLATE) + 20];
+    snprintf(responseBuf, sizeof(INDEX_HTML_TEMPLATE) + 20, INDEX_HTML_TEMPLATE, numCandles);
+    server.send(200, "text/html", responseBuf);
+    delete[] responseBuf;
+}
+{% end_code_block %}
+
+    <p>The candles themselves were addressed using a fixed IP address scheme,
+        as hardcoding DNS records into the router seemed like additional complexity for not much gain, and
+        mDNS, while theoretically supported by the ESP32 platform, had always been flaky in my experience.
+        The scheme first obtained a default address automatically using DHCP, then, assuming that the
+        network is at least a /24, assigns itself the last octet based on its assigned letter starting from 201
+        (so candle A will have xx.yy.zz.201, B will have xx.yy.zz.202, and so on).
+        The rest was fairly straightforward web development, and the result looked reasonable, if not too flashy:
+    </p>
+    {% web_image '/static/assets/team_cake/cake_controller_screenshot.png' %}
+
+    <p>A few additional goodies also went into the firmware: The "rare white pulse" animation from Brite
+        Winter was replaced with a visual "carillon clock" effect which would chime every fifteen minutes
+        and ring the hour. This required the controller clocks to be synced to the correct time (ideally
+        within a small fraction of a second so that the animations would fire in lockstep). The ESP32
+        standard library supports network time protocol (NTP) syncing, which is the standard approach for
+        this, but upon discovering that wiring the installation for internet access would be inconvenient
+        at best, I decided to have the web interface sync the clocks using the client device's time (obtained
+        through JavaScript). This became the button at the top of the screenshot.
+    </p>
+
+    <p>The source code used for the candle firmware, as well as Robert's firmware for the layer strip lighting,
+        are available on GitHub: <a href="https://github.com/picode98/brite-winter-2024-cake-candles">picode98/brite-winter-2024-cake-candles</a>
+    </p>
+
+    <p>At this point, all we needed was a wireless router to network the ESPs and a laptop to display
+        the controller website, both of which the Makers Alliance had spares of. The Saturday before the
+        Bal was spent programming and installing the candles:
+    </p>
+    {% web_image '/static/assets/team_cake/bal_cake_assembly.jpg' caption='Credit: <a href="https://www.facebook.com/groups/111497836185312">Facebook/The Ingeneers</a>' %}
+
+    <p>The Bal itself saw me reprise the "punk rocker" costume I had created for an office Halloween costume
+        contest, while the cake served as a backdrop to the lounge area across from the dance floor.
+        I kept an eye on the setup, but it didn't really need any maintainance
+        beyond waking the laptop display back up occasionally, which meant I got to enjoy festivities such as
+        the Fashion Rocks runway (prepared by Jacci Hammer and Hammertime Productions) and aerial gymnastics by
+        <a href="https://crookedrivercircus.com/">Crooked River Circus</a>.
+    </p>
+
+    <h2>Post-Bal review and design revision</h2>
+
+    <p>Although the interactivity did <i>work</i> during the Bal, it didn't prove to be as much of an
+        attraction as we had hoped. This was probably in part due to the nature of the event (a dance
+        party crowd not being too likely to be attracted to interactive exhibits), but another factor was that
+        the user experience was also clunkier than optimal for a public-facing setup, as it required clicking
+        around on a laptop with the small touchpad below the keyboard. Thus, we began to consider other approaches
+        as we began to prepare for <a href="https://www.ingenuitycleveland.org/programs/ingenuityfest/">IngenuityFest 2024</a> in September.</p>
+
+    <p>In the end, we opted for something simple: a small flame that could be "blown out" which would in turn blow
+        out the candles on the cake itself. The simplicity was partly to cater to festival crowds with a lot of
+        other things to see, and partly because Ross and I were both fairly time-constrained, as we were both working
+        on other festival projects.
+        {% footnote 'Including, in my case, Ed\'s Big Pixel Display (page coming soon)' %}
+        Further, five additional candles needed to be manufactured in order to bring the
+        total to 20 for the 20th year of IngenuityFest, one of which would be an 20-sided "mega flame" that would crown
+        the highest candle.
+    </p>
+
+    <h2>Software Revisions</h2>
+
+    <p>The initial software approach involved simply adding another HTTP endpoint to the existing server that would
+        start a "blowout" animation. I put my 4-year math degree to use for this one, using a biased random walk to
+        try to emulate a real flame's appearance:
+    </p>
+
+    {% code_block C++ %}
+for(size_t i = 0; i < NUM_LEDS; ++i) // Animation runs seperately for each LED.
+{
+    BLOW_OUT_VELOCITY_SEGMENT_TIME[i] += delta; // where delta is the time in seconds since the last animation update
+    if(BLOW_OUT_VELOCITY_SEGMENT_TIME[i] >= 0.05)
+    {
+        BLOW_OUT_BRIGHTNESS_VELOCITY[i] = 20.0 * ( // velocity scaling factor
+            (static_cast<double>(random(INT_MAX)) / (INT_MAX - 1)) // random number in the range [0, 1] inclusive
+            - 0.5 // shift range to [-0.5, 0.5] inclusive
+            - CURRENT_ANIM_TIME / (2.0 * (BLOW_OUT_ANIM_LENGTH - BLOW_OUT_DARK_TIME)) // subtract up to an additional 0.5 as the animation progresses to make the flames
+                                                                                      // likely to flicker out
+        );
+        BLOW_OUT_VELOCITY_SEGMENT_TIME[i] = fmod(BLOW_OUT_VELOCITY_SEGMENT_TIME[i], 0.05); // Keep the remainder for timing accuracy.
+    }
+
+    BLOW_OUT_BRIGHTNESS[i] = min(max(BLOW_OUT_BRIGHTNESS[i] + BLOW_OUT_BRIGHTNESS_VELOCITY[i] * delta, 0.0), 1.0); // Step brightnesses by velocity, clipping to [0, 1].
+}
+    {% end_code_block %}
+
+    <p>The animation seemed to work, but early testing, showed that triggering it via HTTP request for each of the
+        20 candles wouldn't be fast enough (at least, not without some fairly complicated asynchronous code), so I bit the
+        bullet and went back to basics, rewriting it to use good old BSD sockets with a UDP broadcast:
+    </p>
+
+    {% code_block C++ %}
+// Setup
+struct sockaddr_in sourceAddr;
+sourceAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+sourceAddr.sin_family = AF_INET;
+sourceAddr.sin_port = htons(81);
+
+int newSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+const int broadcastPermission = 1;
+setsockopt(newSocket, SOL_SOCKET, SO_BROADCAST, &broadcastPermission, sizeof(broadcastPermission));
+bind(newSocket, reinterpret_cast<struct sockaddr*>(&sourceAddr), sizeof(sourceAddr));
+
+// When blowing out the candles
+struct sockaddr_in destAddr;
+destAddr.sin_addr.s_addr = htonl(IPADDR_BROADCAST);
+destAddr.sin_family = AF_INET;
+destAddr.sin_port = htons(81);
+
+const uint8_t payload[] = { 3 };
+auto bytesSent = sendto(newSocket, payload, sizeof(payload), 0, reinterpret_cast<struct sockaddr*>(&destAddr), sizeof(destAddr));
+    {% end_code_block %}
+
+    <p>I used 3 as the single-byte payload here because future improvements might add physical controls and commands for the
+        other functionality exposed by the web interface: Blinking the candle would be command 0, setting the time would be command 1,
+        and setting the color palette would be command 2.
+    </p>
+
+    <p>For a hardware approach, we experimented with humidity sensors and microphones, but finally settled on a
+        "pendulum" that would physically swing when blown on, with the flame (a chip-on-board unit with an LED that
+        flickered by itself) mounted on top. The swing would be
+        detected by an infrared breakbeam sensor built into a small plastic channel; this would cause the ESP32 to send the UDP packet
+        to blow out the cake candles and pull a transistor open to blow out the small flame.
+    </p>
+
+    <p>Ross also expressed interest in adding OTA-update functionality to the controllers in the individual candles;
+        this turned out to be much easier than I expected thanks to the presence of the {% cs 'OTAWebUpdater' %} example,
+        which used the {% cs 'WebServer' %} built in library that I was already using. As a result, we were able to update
+        the candles two days prior to the festival without taking them down from the cake again, which saved a lot of effort.
+        {% footnote 'It was still a bit nerveracking, though, as the update writes directly to flash with no commit/rollback/recovery mechanisms, so any failed updates would probably have meant taking down candles to update them over USB.' %}
+    </p>
+
+    <h2>When September Ends</h2>
+
+    <p>It was finally time for the festival to begin, and for me to don my Ingenuity Crew shirt. This had the advantage of making me
+        look like I knew what I was doing, and the disadvantage that attendees assumed I knew what I was doing and asked questions that
+        I wasn't prepared for. Still, the festival proved to be a blast, even as I showed people to the second floor (while trying to
+        remember which two of the five stairways reached the second floor). Among other highlights:
+    </p>
+
+    <ul>
+        <li>Crooked River was back, accompanied by musical ceiling-hung Tesla coils courtesy of Tesla Orchestra.</li>
+        <li>Music on 5 stages by lots of talented artists; I particularly enjoyed Bad Bad Hats and Esther Fitz's acts.</li>
+        <li>Brian Gesler's quadruped robots ("Saucy Paws")</li>
+        <li>So many art/craft and other types of vendors</li>
+        <li>So many art installations and other things to look at and listen to</li>
+        <li><a href="https://www.youtube.com/watch?v=HUEu4r3cW8U" target="_blank">Food, glorious food</a> (trucks and stands)</li>
+        <li>Community groups on the fourth floor</li>
+    </ul>
+
+
+    <p>The cake itself required fairly little attention except for one minor incident in which the flame's rotating arm was pulled out
+        of the track with the breakbeam in it; an unattended child was seen pulling on it shortly beforehand.
+        Fortunately, this only took a few seconds to fix, but a different failure point could have taken it down for the rest of the
+        festival; parents, <i>please</i> keep an eye on your children at these events.
+    </p>
+
+    {% web_image '/static/assets/team_cake/ross_blowing_out_cake.jpg:nopreview' caption='Ross blowing out the candle mechanism, which took "about as much effort as blowing out twenty candles".' %}
+
+    <h2>Takeaway Lessons</h2>
+
+    <h3>Designing for a festival crowd</h3>
+    <p>When designing an attraction for use by the public at events, one must make it look approachable enough that
+        people who haven't seen it before are comfortable interacting with it (and know that it's something they should
+        be touching rather than some kind of crew-only backstage equipment). The interface also needs to be highly intutive
+        -- attendees want to relax, not guess at cryptic buttons like they're helping set up their parents' router.
+        Further, they're not likely to stick around long, as there's a lost of other stuff to see and do, so the main
+        payoff/"whoa" reaction should happen fairly quickly. Lastly, designs need to be robust to heavy use and
+        easily field-repairable, as they <i>will</i> be abused by bored children and incautious adults alike.</p>
+
+    <h3>Designing for reliability</h3>
+    <p>Designing manufactured products to be reliable is deceptively difficult, and we spent a lot of time wondering
+        (and yelling) "Why won't this board stay working?!" Components intended more for prototyping, such as the female
+        header rows used to mount the ESP32s to the brain boards, began to fail under the wear of production use. In the
+        future, we should probably swap such parts out for more permanent fixtures. In this case, we could probably have
+        soldered the pin headers directly through the proto-board in some way, or perhaps even designed a custom circuit
+        board that incorporated everything directly (though I don't think that's something we've had experience with yet).
+    </p>
+
+    <h3>The friends we made along the way (at least, I did)</h3>
+    <p>Organizational culture has a larger effect than I think most people realize on the success of a group.
+        It affects not only the types of people that are attracted to and stay with the group, but how they
+        interact with each other, and whether they want to help each other out when the need arises or keep
+        to themselves. I would therefore like to thank Ingenuity leadership and senior IngenuityLabs members
+        for creating a culture of openness and trust that makes it possible to not only complete large projects
+        together, but to have fun doing it (most of the time) and build lasting relationships.</p>
+
+    {% footnotes_section %}
+{% endblock %}

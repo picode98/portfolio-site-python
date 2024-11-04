@@ -30,6 +30,10 @@
           "dispName": "Console Calculator",
           "url": "/projects/console_calculator/",
           "releaseDir": "pages/projects/console_calculator/downloads"
+        },
+        {
+          "dispName": "Ingenuity: Team Cake",
+          "url": "/projects/team_cake"
         }
       ]
     },
@@ -44,6 +48,10 @@
         {
           "dispName": "Manufacturing Simulation",
           "url": "/research/manufacturing_sim"
+        },
+        {
+          "dispName": "SynSec Group Research",
+          "url": "/research/synsec_group"
         }
       ]
     }
